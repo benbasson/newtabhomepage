@@ -8,10 +8,7 @@ You can customise this extension to load the new tab in the background by typing
 
 Installation
 ------------
-Drag and drop the latest XPI file from the build folder into a Firefox window. Alternatively, you can install the extension from:
-
- - https://addons.mozilla.org/en-US/firefox/addon/new-tab-homepage
- - http://www.cusser.net/extensions/tabhomepage/
+Drag and drop the latest XPI file from the build folder into a Firefox window. Alternatively, you can install the extension from https://addons.mozilla.org/en-US/firefox/addon/new-tab-homepage/
 
 Authors
 -------

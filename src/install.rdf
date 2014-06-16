@@ -10,7 +10,7 @@
     <em:name>New Tab Homepage</em:name>
     <em:description>Loads your homepage when you open a new tab.</em:description>
     <em:creator>Ben Basson</em:creator>
-    <em:homepageURL>http://www.cusser.net</em:homepageURL>
+    <em:homepageURL>http://www.basson.at/firefox-addons/newtabhomepage</em:homepageURL>
     
     <em:targetApplication>
       <Description>

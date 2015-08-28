@@ -1,0 +1,14 @@
+{
+  "id": "{66E978CD-981F-47DF-AC42-E3CF417C1467}",
+  "title": "New Tab Homepage",
+  "name": "newtabhomepage",
+  "version": "0.5.0",
+  "description": "Loads your homepage when you open a new tab.",
+  "homepage": "http://www.basson.at/firefox-addons/newtabhomepage", 
+  "author": "Ben Basson",
+  "engines": {
+    "firefox": ">=41.0a2"
+  },
+  "license": "MPL",
+  "main": "index.js"
+}

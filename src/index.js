@@ -15,7 +15,7 @@
  *
  * The Initial Developer of the Original Code is
  *   Ben Basson <ben@basson.at>
- * Portions created by the Initial Developer are Copyright (C) 2005
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,40 +35,31 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var newtabhomepage = {
+const gprefs = require("sdk/preferences/service");
+const newtaburl = require('resource:///modules/NewTabURL.jsm').NewTabURL;
 
-  init: function ()
-  {
-    gBrowser.removeEventListener("NewTab", BrowserOpenTab, false);
-    window.BrowserOpenTab = newtabhomepage.opentab;
-    
-    // explicitly add new listener
-    gBrowser.addEventListener("NewTab", newtabhomepage.opentab, false);
-    
-    newtabhomepage.prefs = Components.classes['@mozilla.org/preferences-service;1']
-                           .getService(Components.interfaces.nsIPrefService);
-  },
-  
-  opentab: function (aEvent)
-  {
-    // Firefox allows multiple piped homepages, take the first if necessary
-    var homepage = gHomeButton.getHomePage().split("|")[0];
-    var newtab = gBrowser.addTab(homepage);
-    if (newtabhomepage.prefs.getBoolPref("newtabhomepage.selectnewtab"))
-    {
-      gBrowser.selectedTab = newtab;
-      if (gURLBar)
-        setTimeout(function() { 
-          // if page is about:blank select() works just like focus, two birds one stone
-          gURLBar.select();
-        }, 0);
-    }
-    if (aEvent)
-      aEvent.stopPropagation();
-      
-    return newtab;
-  }
+// access global startup prefs
+var { PrefsTarget } = require("sdk/preferences/event-target");
+var target = PrefsTarget({ branchName: "browser.startup."});
 
+// set the newtab url preference on startup / install / enable / upgrade
+exports.main = function (options, callbacks) {
+  overrideNewTabPage();
+};
+
+// if the homepage is changed, set the new override
+target.on("homepage", function () {
+  overrideNewTabPage();
+});
+
+// if the add-on is unloaded, revert the override
+exports.onUnload = function (reason) {
+  newtaburl.reset();
+};
+
+// overrides the new tab to the (first) homepage
+function overrideNewTabPage() {
+  // Firefox allows multiple piped homepages, take the first if necessary
+  var homepage = gprefs.getLocalized("browser.startup.homepage", "about:home").split("|")[0];
+  newtaburl.override(homepage);
 }
-
-window.addEventListener("load",newtabhomepage.init,false);

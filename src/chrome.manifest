@@ -1,2 +1,0 @@
-overlay	chrome://browser/content/browser.xul	chrome://tabhomepage/content/tabhomepage.xul
-content	tabhomepage	chrome/content/

@@ -36,7 +36,9 @@
  * ***** END LICENSE BLOCK ***** */
 
 const gprefs = require("sdk/preferences/service");
-const newtaburl = require('resource:///modules/NewTabURL.jsm').NewTabURL;
+const {Cc, Ci} = require('chrome');
+const aboutNewTabService = Cc['@mozilla.org/browser/aboutnewtab-service;1']
+                            .getService(Ci.nsIAboutNewTabService);
 
 // access global startup prefs
 var { PrefsTarget } = require("sdk/preferences/event-target");
@@ -54,12 +56,12 @@ target.on("homepage", function () {
 
 // if the add-on is unloaded, revert the override
 exports.onUnload = function (reason) {
-  newtaburl.reset();
+  aboutNewTabService.resetNewTabURL();
 };
 
 // overrides the new tab to the (first) homepage
 function overrideNewTabPage() {
   // Firefox allows multiple piped homepages, take the first if necessary
   var homepage = gprefs.getLocalized("browser.startup.homepage", "about:home").split("|")[0];
-  newtaburl.override(homepage);
+  aboutNewTabService.newTabURL = homepage;
 }

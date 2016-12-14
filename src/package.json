@@ -4,11 +4,14 @@
   "name": "newtabhomepage",
   "version": "0.5.2",
   "description": "Loads your homepage when you open a new tab.",
-  "homepage": "http://www.basson.at/firefox-addons/newtabhomepage", 
+  "homepage": "http://www.basson.at/firefox-addons/newtabhomepage",
   "author": "Ben Basson",
   "engines": {
     "firefox": ">=44.0"
   },
   "license": "MPL",
-  "main": "index.js"
+  "main": "index.js",
+  "permissions": {
+    "multiprocess": true
+  }
 }

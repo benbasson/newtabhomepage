@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "New Tab Homepage",
+  "version": "0.6",
+  "description": "Loads your homepage when you open a new tab.",
+  "author": "Ben Basson",
+  "homepage_url": "http://www.basson.at/firefox-addons/newtabhomepage",
+  "permissions": [
+    "tabs",
+    "browserSettings",
+    "history",
+    "<all_urls>"
+  ],
+  "chrome_url_overrides" : {
+    "newtab": "redirect.html"
+  },
+  "applications": {
+    "gecko": {
+      "id": "{66E978CD-981F-47DF-AC42-E3CF417C1467}",
+      "strict_min_version": "57.0"
+    }
+  }
+}

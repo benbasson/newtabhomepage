@@ -11,7 +11,8 @@
     "history",
     "<all_urls>"
   ],
-  "chrome_url_overrides" : {
+  "chrome_settings_overrides": {},
+  "chrome_url_overrides": {
     "newtab": "redirect.html"
   },
   "applications": {

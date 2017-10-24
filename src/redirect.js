@@ -39,7 +39,6 @@ const PERMISSIONS = {"permissions": ['browserSettings']};
 const ABOUT_BLANK = "about:blank";
 const ABOUT_NEWTAB = "about:newtab";
 const STARTS_WITH_ABOUT = /^about:/i;
-const STARTS_WITH_PROTOCOL = /^(f|ht)tps?:\/\//i;
 
 const newtabhomepage = {
 
@@ -112,7 +111,20 @@ const newtabhomepage = {
    * @return the url as-is or with a protocol prepended
    */
   async fixUrl (url) {
-    if (url && !STARTS_WITH_ABOUT.test(url) && !STARTS_WITH_PROTOCOL.test(url)) {
+    // Don't do anything if the URL is totally blank for some reason
+    if (!url) {
+      return;
+    }
+    
+    // Try to parse the URL
+    let parsedURL
+    try {
+      parsedURL = new URL(url);
+    }
+    catch (ex) {} // ignore
+    
+    // Append HTTP if we don't have a protocol, or otherwise didn't parse the URL
+    if (!parsedURL || parsedURL.protocol === null) {
       return "http://" + url;
     }
     return url;

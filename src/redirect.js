@@ -77,7 +77,7 @@ const newtabhomepage = {
     if (!STARTS_WITH_ABOUT.test(homepage)) {
       // Tragically this requires "<all_urls>" permissions as this isn't a user-invoked action
       // and therefore we can't use the "activeTab" permission
-      browser.tabs.executeScript(tabId, {"code": "window.focus();"});
+      await browser.tabs.executeScript(tabId, {"code": "window.focus();"});
     }
     
     // Tidy up the URL that is put in the history by the addon loading its own new tab page

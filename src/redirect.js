@@ -42,50 +42,59 @@ const STARTS_WITH_ABOUT = /^about:/i;
 
 const newtabhomepage = {
 
-  /** 
+  /**
    * Redirect the user's new tab to the homepage.
    */
   async redirectUser() {
     // Get the homepage
     let homepage = await newtabhomepage.getHomepageUrl();
-    
+
     // Bail out here if (for some reason) the user has set their homepage to be about:newtab
     // as we're overloading about:newtab already, and any further work will have no effect.
     if (homepage.toLowerCase() === ABOUT_NEWTAB) {
       return;
     }
-    
+
     // fixUrl() here because tabs.update() treats strings relatively to the current url
     // e.g. if the homepage is set to "google.com", it will load via Home button correctly,
     // but we'd try to load it as chrome://<addon-url>/google.com unless we rewrite to prefix
     // with http
     homepage = await newtabhomepage.fixUrl(homepage);
-    
-    let tabId = null;
-    await browser.tabs.update({"url": homepage}, (tab) => {
-      if (tab != undefined) {
-        tabId = tab.id;
-      }
-      else {
-        console.error("New Tab Homepage was unable to load your homepage '" + homepage + "'");
-        return;
-      }
-    });
-    
-    // Only try to focus the loaded page if it isn't set to one of the about: pages
-    if (!STARTS_WITH_ABOUT.test(homepage)) {
-      // Tragically this requires "<all_urls>" permissions as this isn't a user-invoked action
-      // and therefore we can't use the "activeTab" permission
-      await browser.tabs.executeScript(tabId, {"code": "window.focus();"});
+
+    let redirectPage = browser.runtime.getURL("redirect.html");
+    let tab = await browser.tabs.getCurrent();
+
+    // If the homepage is an about: page, we can load them in place because
+    // they never take focus.
+    if (!tab || STARTS_WITH_ABOUT.test(homepage)) {
+      await browser.tabs.update({"url": homepage, "loadReplace": true});
+      // Clean up the URL put in the history.
+      browser.history.deleteUrl({"url": redirectPage});
+      return;
     }
-    
-    // Tidy up the URL that is put in the history by the addon loading its own new tab page
-    browser.history.deleteUrl({"url": browser.extension.getURL("redirect.html")});
+
+    // When opening a tab with Ctrl+T, Firefox opens it as a "blank" tab, which
+    // then has focus put on the URL bar, and a tabs.update() will still leave
+    // it there (bug 1411465).
+    // Meanwhile a tab created with tabs.create() is selected with content
+    // focused, so we treat the first tab as a temporary tab and have it open
+    // a new tab itself so content selection works correctly.
+    let created = await browser.tabs.create({
+      "url": homepage,
+      "index": tab.index,
+      "windowId": tab.windowId
+    });
+    if (tab.groupId > -1) {
+      await browser.tabs.group({"groupId": tab.groupId, "tabIds": created.id});
+    }
+    browser.history.deleteUrl({"url": redirectPage});
+    await browser.tabs.remove(tab.id);
+    // background.js will then remove this tab from the "recently closed" stack.
   },
-  
+
   /**
    * Gets the homepage URL from the browser settings.
-   * 
+   *
    * @return the homepage URL as a string
    */
   async getHomepageUrl() {
@@ -102,9 +111,9 @@ const newtabhomepage = {
       return ABOUT_BLANK;
     }
   },
-  
+
   /**
-   * Fixes up the URL provided so that it is absolute, i.e. fully qualified 
+   * Fixes up the URL provided so that it is absolute, i.e. fully qualified
    * with a protocol.
    *
    * @param url the url to fix up
@@ -115,21 +124,21 @@ const newtabhomepage = {
     if (!url) {
       return;
     }
-    
+
     // Try to parse the URL
     let parsedURL
     try {
       parsedURL = new URL(url);
     }
     catch (ex) {} // ignore
-    
+
     // Append HTTP if we don't have a protocol, or otherwise didn't parse the URL
     if (!parsedURL || parsedURL.protocol === null) {
       return "http://" + url;
     }
     return url;
   }
-  
+
 };
 
 newtabhomepage.redirectUser();
